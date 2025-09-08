@@ -1,0 +1,11 @@
+# Core Data Handling & Analysis
+pandas
+numpy
+
+deap
+ortools
+
+tqdm
+fastapi
+uvicorn
+python-multipart

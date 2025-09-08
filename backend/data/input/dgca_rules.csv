@@ -1,0 +1,8 @@
+rule_id,rule_name,value,description
+DGCA001,Max Daily Duty Hours,10,Maximum duty hours in 24-hour period
+DGCA002,Min Rest Period,12,Minimum rest between duties
+DGCA003,Weekly Duty Limit,60,Maximum duty hours per week
+DGCA004,Flight Duty Period,14,Maximum flight duty period
+DGCA005,Monthly Flight Hours,125,Maximum flight hours per month
+DGCA006,Consecutive Duty Days,6,Maximum consecutive duty days
+DGCA007,Annual Leave,30,Minimum annual leave days
