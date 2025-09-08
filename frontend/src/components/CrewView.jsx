@@ -4,11 +4,20 @@ import {
   ClockIcon, 
   PaperAirplaneIcon,
   MagnifyingGlassIcon,
-  ExclamationTriangleIcon
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 
 const CrewView = ({ roster }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  console.log("roster in crew view: ", roster);
+
+  // Create a map of flight details for easy lookup
+  const flightDetailsMap = {};
+  if (roster.metrics && roster.metrics.flight_details) {
+    roster.metrics.flight_details.forEach(flight => {
+      flightDetailsMap[flight.flight_id] = flight;
+    });
+  }
 
   const crewAssignments = roster.roster.reduce((acc, assignment) => {
     if (!acc[assignment.crew_id]) {
@@ -43,6 +52,18 @@ const CrewView = ({ roster }) => {
     if (hours > 12) return 'bg-orange-500';
     if (hours > 10) return 'bg-yellow-500';
     return 'bg-green-500';
+  };
+
+  const formatTime = (dateString) => {
+    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString([], { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   };
 
   return (
@@ -113,16 +134,65 @@ const CrewView = ({ roster }) => {
               {/* Flight Assignments */}
               <div>
                 <h4 className="text-sm font-medium text-gray-900 mb-3">Flight Assignments ({assignments.length})</h4>
-                <div className="space-y-2">
-                  {assignments.map((assignment, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                      <div className="flex items-center space-x-2">
-                        <PaperAirplaneIcon className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-900">{assignment.flight_id}</span>
-                      </div>
-                      <span className="text-sm text-gray-500">{assignment.duty_hours}h</span>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  {assignments.map((assignment, index) => {
+                    const flightDetails = flightDetailsMap[assignment.flight_id] || {};
+                    return (
+<div key={index} className="p-3 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
+  {/* Flight Header */}
+  <div className="flex items-center justify-between mb-2">
+    <div className="flex items-center space-x-2">
+      <div className="p-1 bg-blue-100 rounded-md">
+        <PaperAirplaneIcon className="h-4 w-4 text-blue-600" />
+      </div>
+      <span className="text-sm font-medium text-gray-900">{assignment.flight_id}</span>
+    </div>
+    <span className="text-sm font-medium bg-blue-100 text-blue-700 px-2 py-1 rounded-md">
+      {assignment.duty_hours}h
+    </span>
+  </div>
+
+  {/* Flight Route */}
+  {flightDetails.origin && flightDetails.destination && (
+    <div className='mb-2 my-2'>
+      <div className="flex items-center justify-between text-xs text-gray-600">
+        <span className="font-medium bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">{flightDetails.origin}</span>
+
+        <div className="flex items-center flex-grow mx-2">
+          <span className="flex-grow border-t border-blue-200"></span>
+          <div className="p-1 bg-blue-100 rounded-full mx-2">
+            <PaperAirplaneIcon className="h-3 w-3 text-blue-500 transform" />
+          </div>
+          <span className="flex-grow border-t border-blue-200"></span>
+        </div>
+
+        <span className="font-medium bg-green-100 text-green-700 px-2 py-1 rounded-md">{flightDetails.destination}</span>
+
+        {flightDetails.aircraft_type && (
+          <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-700 rounded-md text-xs">
+            {flightDetails.aircraft_type}
+          </span>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Flight Date and Time */}
+  {assignment.departure_time && (
+    <div className="flex items-center justify-between text-xs">
+      <div className="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded-md text-gray-700">
+        <CalendarIcon className="h-3 w-3" />
+        <span>{formatDate(assignment.departure_time)}</span>
+      </div>
+      <div className="flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded-md text-gray-700">
+        <ClockIcon className="h-3 w-3" />
+        <span>{formatTime(assignment.departure_time)}</span>
+      </div>
+    </div>
+  )}
+</div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
